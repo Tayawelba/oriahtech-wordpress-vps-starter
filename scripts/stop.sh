@@ -10,6 +10,6 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 cd "${REPO_ROOT}"
-docker compose down
+docker compose down --remove-orphans
 
 echo "Stack arrêtée proprement. Les volumes persistants ont été conservés."
