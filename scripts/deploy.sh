@@ -83,6 +83,14 @@ ensure_compose_resources() {
   docker compose create nginx certbot >/dev/null
 }
 
+ensure_external_volume() {
+  local volume_name="$1"
+
+  if ! docker volume inspect "${volume_name}" >/dev/null 2>&1; then
+    docker volume create "${volume_name}" >/dev/null
+  fi
+}
+
 domain_resolves() {
   if getent ahosts "${FINAL_DOMAIN}" >/dev/null 2>&1; then
     return 0
@@ -171,6 +179,7 @@ done
 
 FINAL_DOMAIN="${SUBDOMAIN}.${ROOT_DOMAIN}"
 NGINX_CERTS_VOLUME="${PROJECT_NAME}_nginx_certs"
+NGINX_WEBROOT_VOLUME="${PROJECT_NAME}_nginx_webroot"
 
 if ! is_project_reverse_proxy_running; then
   ensure_port_available 80
@@ -183,6 +192,8 @@ echo "URL publique : https://${FINAL_DOMAIN}"
 echo
 
 cd "${REPO_ROOT}"
+ensure_external_volume "${NGINX_CERTS_VOLUME}"
+ensure_external_volume "${NGINX_WEBROOT_VOLUME}"
 ensure_compose_resources
 
 if ! has_certificate; then

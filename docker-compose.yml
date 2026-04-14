@@ -85,7 +85,7 @@ services:
       - /bin/sh
       - -c
     command:
-      - trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet || true; sleep 12h & wait $$!; done
+      - trap exit TERM; sleep 10m & wait $$!; while :; do certbot renew --webroot -w /var/www/certbot --quiet || true; sleep 12h & wait $$!; done
     volumes:
       - nginx_certs:/etc/letsencrypt
       - nginx_webroot:/var/www/certbot
@@ -107,6 +107,8 @@ volumes:
   mariadb_data:
     name: ${PROJECT_NAME}_mariadb_data
   nginx_certs:
+    external: true
     name: ${PROJECT_NAME}_nginx_certs
   nginx_webroot:
+    external: true
     name: ${PROJECT_NAME}_nginx_webroot

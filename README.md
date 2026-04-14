@@ -19,6 +19,7 @@ Starter kit Docker Compose prêt pour la production afin de déployer un site Wo
 - un nom de domaine dont vous contrôlez la zone DNS
 
 Le reverse proxy `nginx` tourne dans Docker. Il n'est pas nécessaire d'installer `nginx` sur l'hôte.
+Les volumes des certificats sont conservés explicitement pour éviter toute perte de SSL lors des redéploiements.
 
 ## Configuration DNS
 
@@ -201,6 +202,8 @@ Lister les certificats connus de certbot :
 ```bash
 docker compose run --rm --no-deps --entrypoint certbot certbot certificates
 ```
+
+Le conteneur `certbot` attend volontairement quelques minutes avant sa première boucle de renouvellement. Cela évite les conflits de verrou juste après un déploiement ou un redémarrage.
 
 État de la stack :
 
