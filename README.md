@@ -71,8 +71,8 @@ Exemple :
 ```env
 PROJECT_NAME=oriahtech-wordpress-client1
 SUBDOMAIN=client1
-ROOT_DOMAIN=oriahtech.com
-TLS_EMAIL=admin@oriahtech.com
+ROOT_DOMAIN=oriah.tech
+TLS_EMAIL=hello@oriah.tech
 WORDPRESS_DB_NAME=wordpress
 WORDPRESS_DB_USER=wordpress
 WORDPRESS_DB_PASSWORD=change_me_wordpress_db_password
