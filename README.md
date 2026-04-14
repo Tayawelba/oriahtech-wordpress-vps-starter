@@ -252,6 +252,15 @@ Vérifiez les points suivants :
 - les ports `80` et `443` sont ouverts dans le firewall
 - aucune protection externe ne bloque le challenge HTTP
 
+Commandes de vérification :
+
+```bash
+getent ahosts client1.oriah.tech
+host client1.oriah.tech
+```
+
+Si vous obtenez `NXDOMAIN`, le problème vient du DNS : l'enregistrement `A` ou `AAAA` du sous-domaine n'existe pas encore.
+
 Puis relancez :
 
 ```bash

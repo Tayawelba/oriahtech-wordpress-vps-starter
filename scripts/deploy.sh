@@ -79,12 +79,24 @@ ensure_port_available() {
   fi
 }
 
-ensure_volume() {
-  local volume_name="$1"
+ensure_compose_resources() {
+  docker compose create nginx certbot >/dev/null
+}
 
-  if ! docker volume inspect "${volume_name}" >/dev/null 2>&1; then
-    docker volume create "${volume_name}" >/dev/null
+domain_resolves() {
+  if getent ahosts "${FINAL_DOMAIN}" >/dev/null 2>&1; then
+    return 0
   fi
+
+  if command -v host >/dev/null 2>&1 && host "${FINAL_DOMAIN}" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if command -v nslookup >/dev/null 2>&1 && nslookup "${FINAL_DOMAIN}" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  return 1
 }
 
 has_certificate() {
@@ -159,31 +171,35 @@ done
 
 FINAL_DOMAIN="${SUBDOMAIN}.${ROOT_DOMAIN}"
 NGINX_CERTS_VOLUME="${PROJECT_NAME}_nginx_certs"
-NGINX_WEBROOT_VOLUME="${PROJECT_NAME}_nginx_webroot"
 
 if ! is_project_reverse_proxy_running; then
   ensure_port_available 80
   ensure_port_available 443
 fi
 
-ensure_volume "${NGINX_CERTS_VOLUME}"
-ensure_volume "${NGINX_WEBROOT_VOLUME}"
-
 echo "Projet       : ${PROJECT_NAME}"
 echo "Domaine final: ${FINAL_DOMAIN}"
 echo "URL publique : https://${FINAL_DOMAIN}"
 echo
+
+cd "${REPO_ROOT}"
+ensure_compose_resources
 
 if ! has_certificate; then
   create_dummy_certificate
 fi
 
 echo "Démarrage de la stack Docker Compose avec nginx..."
-
-cd "${REPO_ROOT}"
 docker compose up -d --remove-orphans
 
 if ! has_certificate; then
+  if ! domain_resolves; then
+    echo
+    echo "Le domaine ${FINAL_DOMAIN} ne résout pas encore en DNS public."
+    echo "Créez les enregistrements DNS A/AAAA, attendez la propagation, puis relancez : bash scripts/deploy.sh"
+    exit 1
+  fi
+
   echo
   echo "Demande du certificat Let's Encrypt pour ${FINAL_DOMAIN}..."
   remove_certificate_material
