@@ -199,7 +199,7 @@ docker compose exec -T nginx nginx -t
 Lister les certificats connus de certbot :
 
 ```bash
-docker compose exec -T certbot certbot certificates
+docker compose run --rm --no-deps --entrypoint certbot certbot certificates
 ```
 
 État de la stack :
